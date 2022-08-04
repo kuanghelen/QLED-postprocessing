@@ -1,5 +1,5 @@
 """
-Created on Mon Aug 11, 2022
+Created on Mon Aug 1, 2022
 
 @author: Helen Kuang
 
@@ -37,7 +37,7 @@ def intro():
     st.markdown("___")
             
 
-def pre():
+def pre(spectra_input, IV_photo_input, photo_data_input):
     today = date.today()
     date_string = date.isoformat(today)
     
@@ -45,19 +45,24 @@ def pre():
 #     st.write(date_string)
     global Spectra
     global IV_EL
+    global phototopic
     global numpoints
     global Sample_Name
     
-    Spectra = pd.read_csv(r'2022-05-24Commercial_White1_spectra.csv', sep='\t',skipfooter=1)
-#     st.write(Spectra)
+#     r'%s' % variable
     
+    Spectra = pd.read_csv(spectra_input, sep='\t',skipfooter=1)
+#     st.write(Spectra)
     Spectra = Spectra.to_numpy()
 #     st.write(Spectra)
 
-    IV_EL = pd.read_csv(r'2022-05-24Commercial_White1IV+photocurrent.csv', sep='\t')
+    IV_EL = pd.read_csv(IV_photo_input, sep='\t')
 #     st.write(IV_EL)
-    
     IV_EL = IV_EL.to_numpy()
+    
+    #Phototopic curve
+    phototopic = pd.read_csv(photo_data_input,header=None).to_numpy()
+#     st.write(phototopic)
     
     # TODO: find these variables
     
@@ -78,6 +83,16 @@ def pre():
     colors = cm.get_cmap('PuBu', 8)
 #     st.write(colors(0.56))
     
+    global D_input, A_LED_input, A_phd_input
+    
+    st.sidebar.header("Adjust Settings")
+#     v1, v2, v3 = st.columns(3, gap="medium")
+#     with v1:
+    D_input = st.sidebar.number_input("D (mm^2)", value=10)
+#     with v2:
+    A_LED_input = st.sidebar.number_input("A_LED (mm^2)", value=math.pi*4**2)
+#     with v3:
+    A_phd_input = st.sidebar.number_input("A_phd (mm^2)", value=100)
     
     ######################################################
 
@@ -202,11 +217,15 @@ def graph5():
 def before6():
     global D, A_LED, A_phd, Omega_phd, Selected_EL_Spectrum, normalized_EL_Spectrum, normalized_EL_Spectra
     
-    D = 10 #mm distance between sample and photodetector
-    A_LED = 4.5 #mm^2
-    A_LED = math.pi*4**2 #mm^2
-    A_phd = 100 #mm^2
-    #treating the LED as a point source as it is much smaller than the photodetector active area
+#     D = 10 #mm distance between sample and photodetector
+#     #A_LED = 4.5 #mm^2
+#     A_LED = math.pi*4**2 #mm^2
+#     A_phd = 100 #mm^2
+#     #treating the LED as a point source as it is much smaller than the photodetector active area
+    D = D_input
+    A_LED = A_LED_input
+    A_phd = A_phd_input
+    
     
     #angle subtended by the photodetector
     Omega_phd = 2*math.pi*(1-math.cos(math.sqrt(A_phd/math.pi)/D))
@@ -215,15 +234,35 @@ def before6():
     
     #Selecting max EL spectrum to normalize and continue with calculation
     Selected_EL_Spectrum = 42
-
     normalized_EL_Spectrum = Spectra[:,Selected_EL_Spectrum+1]/np.amax(Spectra[:,Selected_EL_Spectrum+1])
-    normalized_EL_Spectra=Spectra
+    normalized_EL_Spectra=Spectra.copy()
     for i in range(numpoints-1): #This is because the 0V column is entirely zeros
         normalized_EL_Spectra[:,i+2] = Spectra[:,i+2]/np.amax(Spectra[:,i+2])
-        
     
     
 #     ##########################################################
+
+def graph7():
+    st.write("graph7")
+    fig = plt.figure(figsize=(3, 3))
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    for k in range(numpoints):
+        ax.plot(normalized_EL_Spectra[:,0],normalized_EL_Spectra[:,k+1],color = colors(k/numpoints), 
+                 label=f'{IV_EL[k,0]}V', linewidth = 1)
+
+    ax.set_xlabel('Wavelength(nm)')
+    ax.set_ylabel('Counts')
+    ax.set_title('Normalized Electroluminescence Spectra at Each\n Bias Voltage of White Commercial LED')
+    #ax.set_xlim(300,850)
+#     ax.legend(bbox_to_anchor=(2, 1), loc=1, frameon=False, fontsize=10, ncol=3, )
+    ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
+    #ax.set_xticks(ax.get_xticks()[::5])
+#     plt.show()
+    st.pyplot(fig)
+
+    #plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
+
 
 def before8():
     global e, h, c, calculated_QEs
@@ -433,11 +472,6 @@ def graph12(EQE):
     
     # Luminance and current efficacy
     
-def before15():
-    global phototopic
-    #Phototopic curve
-    phototopic = pd.read_csv('StranksPhototopicLuminosityFunction.csv',header=None).to_numpy()
-#     st.write(phototopic)
 
 def graph15():
     st.write("graph15")
@@ -614,233 +648,10 @@ def graph26(current, luminance):
 
     
     ##########################################################
-    ###### Add this stuff later##############
-    
-#     #Combine all figs into one and savefig
-    
-#     ##
-    
-#     #### Luminance and current efficacy
-    
-#     ##
-    
-#     #TODO: correct the path
-#     spectra_path = '../../20220518/run47spectra.txt'
-#     spectra = pd.read_csv(r'../../20220518/run47spectra.txt', sep='\t')
-#     st.write(spectra)
-    
-#     integration_time = spectra.iloc[len(spectra)-2,1]
-#     st.write(integration_time)
-    
-#     # TODO: Should this be printed through the app?
-#     stringA = "V"
-#     file0 = open(spectra_path, "r")
-#     i = 0
-#     j = 0
-#     voltage_rows = np.zeros((len(JV),2))
-#     for line in file0:  
-#         i += 1
-#         # checking string is present in line or not
-#         if stringA in line:
-#             voltage_rows[j,0] = line[:6]
-#             voltage_rows[j,1] = i
-#             st.write("New voltage line", i)
-#             st.write(line)
-#             j+=1
-#     st.write(voltage_rows)
-#     #This array shows voltages in column 0 and their respective rows in column 1
-    
-#     dist_between_voltages = int(voltage_rows[1,1]-voltage_rows[0,1])
-#     Nwavelengths = int(voltage_rows[1,1]-voltage_rows[0,1]-4)
-#     spectra = np.zeros((Nwavelengths,2,j))
-    
-#     st.write(len(voltage_rows))
-    
-#     for k in range(0,len(voltage_rows)):
-#         spectrum = pd.read_csv(spectra_path,sep='\t', header=None, skiprows=2+k*dist_between_voltages, 
-#                                skipfooter=((len(voltage_rows)-k-1)*dist_between_voltages+3))
-#         spectrum = spectrum.to_numpy()
-#         spectra_array[:,0,k] = spectrum[:,0]
-#         spectra_array[:,1,k] = spectrum[:,3]
-    
-#     st.write(spectra_array[:,:,0])
-    
-#     #https://matplotlib.org/3.5.0/tutorials/colors/colormaps.html
-#     #https://matplotlib.org/3.5.0/tutorials/colors/colormap-manipulation.html
-#     colors = cm.get_cmap('PuBu', 8)
-#     st.write(colors(0.56))
-    
-    
-#     fig = plt.figure(figsize=(6,5))
-#     selected_spectra = np.arange(20,46,5)
-#     for k in selected_spectra:
-#         plt.plot(spectra_array[:,0,k],spectra_array[:,1,k],color = colors((k-20)/25), 
-#                  label=f'{voltage_rows[k,0]}V', linewidth = 2)
-#     plt.legend(loc='upper right', ncol = 2)
-#     plt.title(f'Electroluminescence Spectra at Each Bias Voltage of White Commercial LED run {run}')
-#     plt.ylabel('Counts')
-#     plt.xlabel('Wavelength(nm)')
-#     plt.xlim(320,800)
-# #     plt.show()
-#     st.pyplot(fig)
-# #     plt.savefig(f'Spectra_vs_voltage_run{run}.png')
-
-
-#     ##########################################################
-    
-#     plt.rc('font', family='Arial')
-#     plt.rcParams['axes.linewidth'] = 2
-#     plt.rc('xtick', labelsize='small')
-#     plt.rc('ytick', labelsize='small')
-#     plt.rcParams['font.size'] = 12
-
-#     fig = plt.figure(figsize=(3, 3))
-#     ax = fig.add_axes([0, 0, 1, 1])
-
-#     for k in selected_spectra:
-#         ax.plot(spectra_array[:,0,k],spectra_array[:,1,k],color = colors((k-20)/25), 
-#                  label=f'{voltage_rows[k,0]}V', linewidth = 2)
-
-#     ax.set_xlabel('Wavelength(nm)')
-#     ax.set_ylabel('Counts')
-#     ax.set_title('Electroluminescence Spectra at Each\n Bias Voltage of White Commercial LED')
-#     ax.set_xlim(300,850)
-#     ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-# #     plt.show()
-#     st.pyplot(fig)
-
-# #     plt.savefig('Electroluminescence Spectra at Each\n Bias Voltage of White Commercial LED', 
-# #                 dpi=300, transparent=False, bbox_inches='tight')
-
-
-#     ##########################################################
-    
-#     # TODO: added fig and ax, think about later
-#     fig = plt.figure(figsize=(3, 3))
-#     ax = fig.add_axes([0, 0, 1, 1])
-    
-#     JV_array = JV.to_numpy()
-#     plt.plot(JV_array[:,0],JV_array[:,1])
-#     plt.title(f'IV Characteristics of White Commercial LED run {run}')
-#     plt.ylabel('Current(A)')
-#     plt.xlabel('Bias Voltage(V)')
-# #     plt.show()
-#     st.pyplot(fig) # make sure figure looks correct
-    
-#     #alternatively,
-#     #JV.plot(x='Bias (V)',y='Diode Current(A)')
-# #     plt.savefig(f'IV_characteristics_run{run}.png')
-
-
-#     ##########################################################
-    
-#     fig = plt.figure(figsize=(3, 3))
-#     ax = fig.add_axes([0, 0, 1, 1])
-
-#     ax.plot(JV_array[:,0],JV_array[:,1],linewidth=2)
-
-#     ax.set_xlabel('Bias Voltage(V)')
-#     ax.set_ylabel('Current(A)')
-#     ax.set_title('IV Characteristics of\n White Commercial LED')
-#     #ax.set_xlim(300,850)
-#     #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-# #     plt.show()
-#     st.pyplot(fig)
-# #     plt.savefig('IV Characteristics of\n White Commercial LED', dpi=300, transparent=False, bbox_inches='tight')
-    
-#     ##########################################################
-    
-#     #assume illumination coming from entire bead
-#     area = math.pi*0.004**2
-#     st.write(area)
-    
-#     st.write(len(spectra_array))
-    
-#     #Try calculating EQE in a more intuitive way...
-#     e=1.602176634e-19 #C
-#     h=6.62607015e-34 #J.Hz-1
-#     c=299792458 #ms-1
-#     EQE_array = np.zeros((len(JV),3))
-#     EQE_array[:,0] = JV_array[:,0] 
-#     EQE_array[:,1] = JV_array[:,1] 
-
-#     for k in range(0,len(voltage_rows)):
-#         electron_input = JV_array[:,1]/e
-#         photon_output = 0
-#         counts_sum=0
-#         for m in range(len(spectra_array)):
-#             counts_sum+=spectra_array(m,1,k)
-#             photon_output = 
-#         EQE_array[k,2] = photon_output/electron_input
-    
-#     #EQE calculation
-#     #Assuming for the mean time that the responsivity function R(lambda)=1
-#     #also not accounting for f
-#     for k in range(0,len(voltage_rows)):
-#         numerator = 0
-#         denominator = 0
-#         denom_integral = 0
-#         R_lambda=0
-#         I_OLED = JV_array[k,1]
-#         for m in range(len(spectra_array)):
-#             wavelength = spectra_array[m,0,k]
-#             counts = spectra_array[m,1,k]
-#             Idet = counts*e/integration_time
-#             numerator+=wavelength*1e-9*Idet
-#             eta_det = h*c/(e*wavelength*1e-9)
-#             denom_integral+=wavelength*1e-9*eta_det
-#         denominator=I_OLED*denom_integral
-#         EQE_array[k,2]=numerator/denominator
-#     st.write(EQE_array)
-    
-    
-    
-#     #Luminance calculation
-    
-#     #Spectral Peakfinding (imperfect here since the peak is saturated)
-#     max_points = np.zeros((len(voltage_rows),5))
-#     max_points[:,0]=voltage_rows[:,0]
-#     for k in range(0,len(voltage_rows)):
-#         max_counts = np.max(spectra_array[:,1,k])
-#         max_position = np.asarray(np.where(spectra_array[:,1,k] == np.max(spectra_array[:,1,k]))).flatten()
-#         #print(max_position)
-#         max_points[k,1]=spectra_array[max_position[0],0,k]
-#         max_points[k,2]=spectra_array[max_position[0],1,k]
-#         #Accounting for second maxima?
-#         if len(max_position)==2:
-#             max_points[k,3]=spectra_array[max_position[1],0,k]
-#             max_points[k,4]=spectra_array[max_position[1],1,k]
-    
-    
-#     plt.plot(max_points[:,0],max_points[:,2])
-#     plt.xlabel("Voltage(V)")
-#     plt.ylabel("Electroluminescence Peak Maximum(counts)")
-#     plt.title(f"Electroluminescence Peak Maximum Counts vs. Voltage run {run}")
-# #     plt.show()
-#     st.pyplot(fig)
-    
-    
-#     ##########################################################
-    
-#     plt.plot(max_points[:,0],max_points[:,1])
-#     plt.xlabel("Voltage(V)")
-#     plt.ylabel("Electroluminescence Peak Maximum(nm)")
-#     plt.title(f"Electroluminescence Peak Maximum Wavelength vs. Voltage run {run}")
-#     plt.xlim(2.6,4.6)
-#     plt.ylim(440,520)
-# #     plt.show()
-#     st.pyplot(fig)
-    
-    ##########################################################
     
 
-
-    
-    
-if __name__ == '__main__':
-    intro()
-    pre()
-    
+def do_stuff():
+        
 #     graph3()
     before4()
     
@@ -850,13 +661,12 @@ if __name__ == '__main__':
     before9()
     before10()
     before11()
-    before15()
     before16()
     before17()
     before19()
     
     
-    st.sidebar.title("Select the plots to show:")
+    st.sidebar.header("Select the plots to show:")
     
     g26 = st.sidebar.checkbox("Current and Luminance vs. Voltage", value=True)
     if g26:
@@ -884,8 +694,13 @@ if __name__ == '__main__':
     if g22:
         graph22()
     
-#     g3 = st.sidebar.checkbox("Electroluminescence(EL) spectra (counts vs wavelength)")
-    
+    g3 = st.sidebar.checkbox("Electroluminescence (EL) Spectra", value=True)
+    if g3:
+        graph3()
+        
+    g7 = st.sidebar.checkbox("Normalized EL Spectra", value=True)
+    if g7:
+        graph7()
     
     g2 = st.sidebar.checkbox("Photocurrent vs. Voltage")
     if g2:
@@ -914,31 +729,47 @@ if __name__ == '__main__':
     g15 = st.sidebar.checkbox("Phototopic Function of the Human Eye (Phototopic Factor vs. Wavelength)")
     if g15:
         graph15()
-        
+     
     st.sidebar.write("")
     st.sidebar.write("")
-    
-        
-        
 
     
-#     graph3()
-# #     before4()
-#     graph4()
-#     graph5()
-# #     before6()
-# #     before8()
-# #     before9()
-# #     before10()
-# #     before11()
-#     graph12()
-#     graph14()
-# #     before15()
-#     graph15()
-# #     before16()
-# #     before17()
-# #     before19()
-#     graph22()
-#     graph26()
+if __name__ == '__main__':
+    intro()
     
+    with st.expander('Uploads', expanded=True):
+#         col1, col2, col3 = st.columns(3, gap="small")
+#         with col1:
+        spectra_input = st.file_uploader("Upload a spectra CSV")
+#         with col2:
+        IV_photo_input = st.file_uploader("Upload an IV+photocurrent CSV")
+#         with col3:
+        photo_data_input = st.file_uploader("Upload photodetector data CSV")
+        
+        placeholder = st.empty()
+        test = placeholder.button("DEVELOPMENT: USE DEFAULT FILES")
+
+    if "load_state" not in st.session_state:
+        st.session_state.load_state = False
+        
+    if spectra_input and IV_photo_input and photo_data_input is not None:
+        st.session_state.load_state = False
+        placeholder.empty()
+        try:
+            st.write("Displaying plots based on your uploads:")
+            pre(spectra_input, IV_photo_input, photo_data_input)
+            do_stuff()
+        except:
+            st.error("Check your uploads for errors/formatting issues!")
     
+    if (test or st.session_state.load_state):
+        st.write("Displaying plots based on default data:")
+        st.session_state.load_state = True
+        a = '2022-05-24Commercial_White1_spectra.csv'
+        b = '2022-05-24Commercial_White1IV+photocurrent.csv'
+        c = 'StranksPhototopicLuminosityFunction.csv'
+        
+        pre(a, b, c)
+#         set_vars()
+        do_stuff()
+        
