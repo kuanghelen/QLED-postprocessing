@@ -23,13 +23,14 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 import streamlit as st
 
+dev_mode = False
 
 st.set_page_config(page_title='QLED')
 
 def intro():
     st.title('QLED Testing Postprocessing')
     st.subheader('The Ginger Lab, University of Washington')
-    st.caption('Gillian Shen')
+    st.caption('Gillian Shen, Helen Kuang')
 
 #     with st.expander('Quick Guide'):
 #         st.write("Insert information")
@@ -49,20 +50,15 @@ def pre(spectra_input, IV_photo_input, photo_data_input):
     global numpoints
     global Sample_Name
     
-#     r'%s' % variable
     
     Spectra = pd.read_csv(spectra_input, sep='\t',skipfooter=1)
-#     st.write(Spectra)
     Spectra = Spectra.to_numpy()
-#     st.write(Spectra)
 
     IV_EL = pd.read_csv(IV_photo_input, sep='\t')
-#     st.write(IV_EL)
     IV_EL = IV_EL.to_numpy()
     
     #Phototopic curve
     phototopic = pd.read_csv(photo_data_input,header=None).to_numpy()
-#     st.write(phototopic)
     
     # TODO: find these variables
     
@@ -86,18 +82,16 @@ def pre(spectra_input, IV_photo_input, photo_data_input):
     global D_input, A_LED_input, A_phd_input
     
     st.sidebar.header("Adjust Settings")
-#     v1, v2, v3 = st.columns(3, gap="medium")
-#     with v1:
-    D_input = st.sidebar.number_input("D (mm^2)", value=10)
-#     with v2:
-    A_LED_input = st.sidebar.number_input("A_LED (mm^2)", value=math.pi*4**2)
-#     with v3:
-    A_phd_input = st.sidebar.number_input("A_phd (mm^2)", value=100)
+
+    D_input = st.sidebar.number_input("Distance between photodetector and LED (mm)", value=10)
+    A_LED_input = st.sidebar.number_input("Active area of LED (mm^2)", value=math.pi*4**2)
+    A_phd_input = st.sidebar.number_input("Active area of photodetector (mm^2)", value=100)
     
     ######################################################
 
 def graph2():
-    st.write("graph2")
+    if dev_mode:
+        st.write("graph2")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -106,14 +100,12 @@ def graph2():
     ax.set_xlabel('Bias Voltage(V)')
     ax.set_ylabel('Photourrent(mA)')
     ax.set_title('EL Characteristics of\n White Commercial LED')
-    #ax.set_xlim(300,850)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-#     plt.show()
     st.pyplot(fig)
     
     
 def graph3():
-    st.write("graph3")
+    if dev_mode:
+        st.write("graph3")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -124,13 +116,9 @@ def graph3():
     ax.set_xlabel('Wavelength(nm)')
     ax.set_ylabel('Counts')
     ax.set_title('Electroluminescence Spectra at Each\n Bias Voltage of White Commercial LED')
-    #ax.set_xlim(300,850)
     
-#     ax.legend(bbox_to_anchor=(2, 1), loc=1.02, frameon=False, fontsize=10, ncol=3)
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
-    
-    #ax.set_xticks(ax.get_xticks()[::5])
-#     plt.show()
+
     st.pyplot(fig)
 
 #     plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
@@ -180,7 +168,8 @@ def before4():
     ##########################################################
     
 def graph4():
-    st.write("graph4")
+    if dev_mode:
+        st.write("graph4")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -189,16 +178,14 @@ def graph4():
     ax.set_xlabel('Wavelength(nm)')
     ax.set_ylabel('Responsivity (A/W)')
     ax.set_title('Responsivity Function of Photodiode E')
-    #ax.set_xlim(300,850)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-#     plt.show()
     st.pyplot(fig)
     
     
     ##########################################################
 
 def graph5():
-    st.write("graph5")
+    if dev_mode:
+        st.write("graph5")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -207,9 +194,6 @@ def graph5():
     ax.set_xlabel('Wavelength($\lambda$)')
     ax.set_ylabel('EQE(%)')
     ax.set_title('Wavelength dependent EQE of device\n measured by Photodiode E?')
-    #ax.set_xlim(300,850)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-#     plt.show()
     st.pyplot(fig)
     
 #     ##########################################################
@@ -243,7 +227,8 @@ def before6():
 #     ##########################################################
 
 def graph7():
-    st.write("graph7")
+    if dev_mode:
+        st.write("graph7")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -254,11 +239,7 @@ def graph7():
     ax.set_xlabel('Wavelength(nm)')
     ax.set_ylabel('Counts')
     ax.set_title('Normalized Electroluminescence Spectra at Each\n Bias Voltage of White Commercial LED')
-    #ax.set_xlim(300,850)
-#     ax.legend(bbox_to_anchor=(2, 1), loc=1, frameon=False, fontsize=10, ncol=3, )
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
-    #ax.set_xticks(ax.get_xticks()[::5])
-#     plt.show()
     st.pyplot(fig)
 
     #plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
@@ -348,7 +329,8 @@ def before9():
     
 
 def graph9():
-    st.write("graph9")
+    if dev_mode:
+        st.write("graph9")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -357,9 +339,6 @@ def graph9():
     ax.set_xlabel('Bias Voltage(V)')
     ax.set_ylabel('Photon flux ($photon.s^{-1}.sr^{-1}$)')
     ax.set_title('Incident Photon Flux on Photodiode\nfrom White Commercial LED')
-    #ax.set_xlim(300,850)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-#     plt.show()
     st.pyplot(fig)
     
     
@@ -395,7 +374,8 @@ def before10():
     IV_EL[:,4]=R #columns: V, I, Iphd, Photon Flux, Radiance
     
 def graph10():
-    st.write("graph10")
+    if dev_mode:
+        st.write("graph10")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -404,9 +384,6 @@ def graph10():
     ax.set_xlabel('Bias Voltage(V)')
     ax.set_ylabel('Radiance ($W.sr^{-1}.m^{-2}$)')
     ax.set_title('LED Radiance vs. Voltage \nfor White Commercial LED')
-    #ax.set_xlim(300,850)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-#     plt.show()
     st.pyplot(fig)
     
     
@@ -438,8 +415,9 @@ def before11():
     
     ##########################################################
     
-def graph12(EQE):
-    st.write("graph12")
+def graph12(EQE, x_lo, x_hi, y_lo, y_hi):
+    if dev_mode:
+        st.write("graph12")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -448,23 +426,11 @@ def graph12(EQE):
     ax.set_xlabel('Current Density (A/$cm^{-2}$)')
     ax.set_ylabel('EQE(%)')
     ax.set_title('LED EQE vs. Current Density \nfor White Commercial LED')
-#     ax.set_xlim(1e-8,1+5)
-#     ax.set_ylim(0,100)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-
+    ax.set_xlim(x_lo,x_hi)
+    ax.set_ylim(y_lo,y_hi)
+ 
     ax.set_yscale(EQE)
-    
-    # TODO: adjust range
-    if EQE=='linear':
-        ax.set_xlim(1e-8,1+5)
-        ax.set_ylim(0,100)
-    else:
-        ax.set_xlim(1e-2,1+2)
-        ax.set_ylim(0,80)
-    
-    
     ax.set_xscale('log') #as opposed to 'linear'
-#     plt.show()
     st.pyplot(fig)
     
     
@@ -474,7 +440,8 @@ def graph12(EQE):
     
 
 def graph15():
-    st.write("graph15")
+    if dev_mode:
+        st.write("graph15")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -483,12 +450,6 @@ def graph15():
     ax.set_xlabel('Wavelength(nm)')
     ax.set_ylabel('Phototopic factor')
     ax.set_title('Phototopic response of the human eye to light')
-    #ax.set_xlim(1e-5,1e3+5000)
-    #ax.set_ylim(0,100)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-
-    #ax.set_xscale('log') #as opposed to 'linear'
-#     plt.show()
     st.pyplot(fig)
     
     
@@ -544,7 +505,6 @@ def before16():
     IV_EL[:,7]=L_prime #columns: V, I, Iphd, Photon Flux, Radiance, EQE, J, Luminous intensity (cd)
     
     
-    
     ##########################################################
     
 def before17():
@@ -558,7 +518,8 @@ def before17():
     ##########################################################
     
 def graph17():
-    st.write("graph17")
+    if dev_mode:
+        st.write("graph17")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -567,12 +528,6 @@ def graph17():
     ax.set_xlabel('Current Density (A/$cm^{-2}$)')
     ax.set_ylabel('Luminance (cd/$m^{-2}$)')
     ax.set_title('Luminance vs. Current Density \nfor White Commercial LED')
-    #ax.set_xlim(0,2000)
-    #ax.set_ylim(0,2e-16)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
-
-    #ax.set_xscale('log') #as opposed to 'linear'
-#     plt.show()
     st.pyplot(fig)
     
 def before19():
@@ -605,8 +560,9 @@ def before19():
     
     ##########################################################
     
-def graph22():
-    st.write("graph22")
+def graph22(x_lo, x_hi, y_lo, y_hi):
+    if dev_mode:
+        st.write("graph22")
     fig = plt.figure(figsize=(3, 3))
     ax = fig.add_axes([0, 0, 1, 1])
 
@@ -615,19 +571,18 @@ def graph22():
     ax.set_xlabel('Current Density (A/$cm^{-2}$)')
     ax.set_ylabel('Luminous Efficacy (lm/W)')
     ax.set_title('Luminous Efficacy vs. Current Density \nfor White Commercial LED')
-    ax.set_xlim(1e-2,2.3)
-    ax.set_ylim(0,250)
-    #ax.legend(bbox_to_anchor=(1, 1), loc=1, frameon=False, fontsize=10)
+    ax.set_xlim(x_lo,x_hi)
+    ax.set_ylim(y_lo,y_hi)
 
     ax.set_xscale('log') #as opposed to 'linear'
-#     plt.show()
     st.pyplot(fig)
     
     
     ##########################################################
     
 def graph26(current, luminance):
-    st.write("graph26")
+    if dev_mode:
+        st.write("graph26")
     #Now plotting a JVL curve
     fig, ax1 = plt.subplots(figsize=(4, 4))
     ax2 = ax1.twinx()
@@ -646,17 +601,30 @@ def graph26(current, luminance):
     ax2.set_yscale(luminance)
     st.pyplot(fig)
 
-    
-    ##########################################################
-    
+
+######################################
+
+def graph30(increment):
+    if dev_mode:
+        st.write("graph30")
+    fig = plt.figure(figsize=(3, 3))
+    ax = fig.add_axes([0, 0, 1, 1])
+    selected_spectra = np.arange(0,numpoints,increment)
+    for k in selected_spectra:
+        ax.plot(Spectra[:,0],Spectra[:,k+1],color = colors(k/numpoints), 
+                 label=f'{IV_EL[k,0]}V', linewidth = 1)
+    ax.set_xlabel('Wavelength(nm)')
+    ax.set_ylabel('Counts')
+    ax.set_title('Electroluminescence Spectra at Each\n Bias Voltage of White Commercial LED')
+#     ax.set_xlim(300,800)
+    ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
+    st.pyplot(fig)
+    #plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
 
 def do_stuff():
         
-#     graph3()
     before4()
-    
     before6()
-#     graph3()
     before8()
     before9()
     before10()
@@ -664,7 +632,6 @@ def do_stuff():
     before16()
     before17()
     before19()
-    
     
     st.sidebar.header("Select the plots to show:")
     
@@ -676,43 +643,98 @@ def do_stuff():
         with col2:
             luminance26 = st.select_slider('Luminance', options=['log','linear'], value='log')
         
-        graph26(current=current26, luminance=luminance26)
+        buf, mid, buf = st.columns([1,4,1])
+        with mid:
+            graph26(current=current26, luminance=luminance26)
     
-    # TODO: graph14 (deleted) has a different x/y limit
+    
     g12 = st.sidebar.checkbox("EQE% vs. Current Density", value=True)
     if g12:
         col1, col2 = st.sidebar.columns(2, gap="medium")
         with col1:
             EQE12 = st.select_slider('EQE%', options=['log','linear'], value='linear')
-        graph12(EQE=EQE12)
+            
+        if EQE12=='linear':
+            x_1 = 1e-8
+            x_2 = 6.0
+            y_1 = 0.0
+            y_2 = 100.0
+        else:
+            x_1 = 9e-8
+            x_2 = 2.5
+            y_1 = 1.0
+            y_2 = 100.0
+            
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            x_lo_input = st.number_input("x min", value=x_1, format='%f', key=1)
+        with col2:
+            x_hi_input = st.number_input("x max", value=x_2, format='%f', key=1)
+        
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            y_lo_input = st.number_input("y min", value=y_1, format='%f', key=1)
+        with col2:
+            y_hi_input = st.number_input("y max", value=y_2, format='%f', key=1)
+        
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph12(EQE12, x_lo_input, x_hi_input, y_lo_input, y_hi_input)
     
-    g17 = st.sidebar.checkbox("Luminous Efficacy vs Current Density", value=True)
+    g17 = st.sidebar.checkbox("Luminous vs Current Density", value=True)
     if g17:
-        graph17()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph17()
     
-    g22 = st.sidebar.checkbox("Luminance vs Current Density", value=True)
+    g22 = st.sidebar.checkbox("Luminance Efficacy vs Current Density", value=True)
     if g22:
-        graph22()
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            x_lo_input = st.number_input("x min", value=1e-2, format='%f',key=2)
+        with col2:
+            x_hi_input = st.number_input("x max", value=2.3, format='%f',key=2)
+        
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            y_lo_input = st.number_input("y min", value=0.0, format='%f', key=2)
+        with col2:
+            y_hi_input = st.number_input("y max", value=250.0, format='%f', key=2)
+            
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph22(x_lo_input, x_hi_input, y_lo_input, y_hi_input)
     
     g3 = st.sidebar.checkbox("Electroluminescence (EL) Spectra", value=True)
     if g3:
         graph3()
         
-    g7 = st.sidebar.checkbox("Normalized EL Spectra", value=True)
+    g30 = st.sidebar.checkbox("Selected EL Spectra", value=True)
+    if g30:
+        increment = st.sidebar.slider("EL spectra at each __ voltage", min_value=1, max_value=15, value=5)
+        graph30(increment)
+        
+    g7 = st.sidebar.checkbox("Normalized EL Spectra", value=False)
     if g7:
         graph7()
     
     g2 = st.sidebar.checkbox("Photocurrent vs. Voltage")
     if g2:
-        graph2()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph2()
         
     g9 = st.sidebar.checkbox("Photon Flux vs. Voltage")
     if g9:
-        graph9()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph9()
         
     g10 = st.sidebar.checkbox("Radiance vs. Voltage")
     if g10:
-        graph10()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph10()
         
 
     st.sidebar.write("")
@@ -720,15 +742,21 @@ def do_stuff():
     
     g5 = st.sidebar.checkbox("Photodetector EQE vs. Wavelength")
     if g5:
-        graph5()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph5()
         
     g4 = st.sidebar.checkbox("Responsivity vs. Wavelength")
     if g4:
-        graph4()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph4()
         
     g15 = st.sidebar.checkbox("Phototopic Function of the Human Eye (Phototopic Factor vs. Wavelength)")
     if g15:
-        graph15()
+        buf, mid, buf = st.columns([1,3,1])
+        with mid:
+            graph15()
      
     st.sidebar.write("")
     st.sidebar.write("")
@@ -738,16 +766,12 @@ if __name__ == '__main__':
     intro()
     
     with st.expander('Uploads', expanded=True):
-#         col1, col2, col3 = st.columns(3, gap="small")
-#         with col1:
         spectra_input = st.file_uploader("Upload a spectra CSV")
-#         with col2:
         IV_photo_input = st.file_uploader("Upload an IV+photocurrent CSV")
-#         with col3:
         photo_data_input = st.file_uploader("Upload photodetector data CSV")
         
         placeholder = st.empty()
-        test = placeholder.button("DEVELOPMENT: USE DEFAULT FILES")
+        test = placeholder.button("USE DEFAULT FILES")
 
     if "load_state" not in st.session_state:
         st.session_state.load_state = False
@@ -756,20 +780,21 @@ if __name__ == '__main__':
         st.session_state.load_state = False
         placeholder.empty()
         try:
-            st.write("Displaying plots based on your uploads:")
+            if dev_mode:
+                st.write("Displaying plots based on your uploads:")
             pre(spectra_input, IV_photo_input, photo_data_input)
             do_stuff()
         except:
             st.error("Check your uploads for errors/formatting issues!")
     
     if (test or st.session_state.load_state):
-        st.write("Displaying plots based on default data:")
+        if dev_mode:
+            st.write("Displaying plots based on default data:")
         st.session_state.load_state = True
         a = '2022-05-24Commercial_White1_spectra.csv'
         b = '2022-05-24Commercial_White1IV+photocurrent.csv'
         c = 'StranksPhototopicLuminosityFunction.csv'
         
         pre(a, b, c)
-#         set_vars()
         do_stuff()
         
