@@ -205,7 +205,7 @@ def preprocess_data():
 #     st.write(Omega_phd)
     
     #Selecting max EL spectrum to normalize and continue with calculation
-    Selected_EL_Spectrum = 42
+    Selected_EL_Spectrum = 1
     normalized_EL_Spectrum = Spectra[:,Selected_EL_Spectrum+1]/np.amax(Spectra[:,Selected_EL_Spectrum+1])
     normalized_EL_Spectra=Spectra.copy()
     for i in range(numpoints-1): #This is because the 0V column is entirely zeros
@@ -489,7 +489,7 @@ def graph10():
     ##########################################################
     
     
-def graph12(EQE):
+def graph12(EQE, x_lo, x_hi, y_lo, y_hi):
     if dev_mode:
         st.write("graph12")
     fig = plt.figure(figsize=(3, 3))
@@ -500,6 +500,14 @@ def graph12(EQE):
     ax.set_xlabel('Current Density (A/$cm^{-2}$)')
     ax.set_ylabel('EQE(%)')
     ax.set_title(f'LED EQE vs. Current Density \nfor {Sample_Name}')
+    
+    
+    if x_lo < 0.0 or x_hi > 0.0:
+        ax.set_xlim(x_lo,x_hi)
+    
+    if y_lo < 0.0 or y_hi > 0.0:
+        ax.set_ylim(y_lo,y_hi)
+        
 #     ax.set_xlim(x_lo,x_hi)
 #     ax.set_ylim(y_lo,y_hi)
  
@@ -542,7 +550,7 @@ def graph17():
     st.pyplot(fig)
 
     
-def graph22():
+def graph22(x_lo, x_hi, y_lo, y_hi):
     if dev_mode:
         st.write("graph22")
     fig = plt.figure(figsize=(3, 3))
@@ -553,6 +561,13 @@ def graph22():
     ax.set_xlabel('Current Density (A/$cm^{-2}$)')
     ax.set_ylabel('Luminous Efficacy (lm/W)')
     ax.set_title(f'Luminous Efficacy vs. Current Density \nfor {Sample_Name}')
+    
+    if x_lo < 0.0 or x_hi > 0.0:
+        ax.set_xlim(x_lo,x_hi)
+    
+    if y_lo < 0.0 or y_hi > 0.0:
+        ax.set_ylim(y_lo,y_hi)
+    
 #     ax.set_xlim(x_lo,x_hi)
 #     ax.set_ylim(y_lo,y_hi)
 
@@ -622,36 +637,25 @@ def sidebar_controls():
     
     g12 = st.sidebar.checkbox("EQE% vs. Current Density", value=True)
     if g12:
-        col1, col2 = st.sidebar.columns(2, gap="medium")
+        col1, buf = st.sidebar.columns(2, gap="medium")
         with col1:
             EQE12 = st.select_slider('EQE%', options=['log','linear'], value='linear')
             
-        if EQE12=='linear':
-            x_1 = 1e-8
-            x_2 = 6.0
-            y_1 = 0.0
-            y_2 = 100.0
-        else:
-            x_1 = 9e-8
-            x_2 = 2.5
-            y_1 = 1.0
-            y_2 = 100.0
-            
-#         col1, col2 = st.sidebar.columns(2, gap="small")
-#         with col1:
-#             x_lo_input = st.number_input("x min", value=x_1, format='%f', key=1)
-#         with col2:
-#             x_hi_input = st.number_input("x max", value=x_2, format='%f', key=1)
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            x_lo_input = st.number_input("x min", format='%f', key=1)
+        with col2:
+            x_hi_input = st.number_input("x max", format='%f', key=1)
         
-#         col1, col2 = st.sidebar.columns(2, gap="small")
-#         with col1:
-#             y_lo_input = st.number_input("y min", value=y_1, format='%f', key=1)
-#         with col2:
-#             y_hi_input = st.number_input("y max", value=y_2, format='%f', key=1)
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            y_lo_input = st.number_input("y min", format='%f', key=1)
+        with col2:
+            y_hi_input = st.number_input("y max", format='%f', key=1)
         
         buf, mid, buf = st.columns([1,3,1])
         with mid:
-            graph12(EQE12)
+            graph12(EQE12, x_lo_input, x_hi_input, y_lo_input, y_hi_input)
     
     g17 = st.sidebar.checkbox("Luminous vs Current Density", value=True)
     if g17:
@@ -661,21 +665,21 @@ def sidebar_controls():
     
     g22 = st.sidebar.checkbox("Luminance Efficacy vs Current Density", value=True)
     if g22:
-#         col1, col2 = st.sidebar.columns(2, gap="small")
-#         with col1:
-#             x_lo_input = st.number_input("x min", value=1e-2, format='%f',key=2)
-#         with col2:
-#             x_hi_input = st.number_input("x max", value=2.3, format='%f',key=2)
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            x_lo_input = st.number_input("x min", format='%f', key=2)
+        with col2:
+            x_hi_input = st.number_input("x max", format='%f', key=2)
         
-#         col1, col2 = st.sidebar.columns(2, gap="small")
-#         with col1:
-#             y_lo_input = st.number_input("y min", value=0.0, format='%f', key=2)
-#         with col2:
-#             y_hi_input = st.number_input("y max", value=250.0, format='%f', key=2)
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            y_lo_input = st.number_input("y min", format='%f', key=2)
+        with col2:
+            y_hi_input = st.number_input("y max", format='%f', key=2)
             
         buf, mid, buf = st.columns([1,3,1])
         with mid:
-            graph22()
+            graph22(x_lo_input, x_hi_input, y_lo_input, y_hi_input)
     
     g3 = st.sidebar.checkbox("Electroluminescence (EL) Spectra", value=True)
     if g3:
@@ -756,14 +760,14 @@ if __name__ == '__main__':
     if spectra_input and IV_photo_input is not None:
         st.session_state.load_state = False
         placeholder.empty()
-        try:
-            if dev_mode:
-                st.write("Displaying plots based on your uploads:")
-            pre(spectra_input, IV_photo_input)
-            preprocess_data()
-            sidebar_controls()
-        except:
-            st.error("Check your uploads for errors/formatting issues!")
+#         try:
+        if dev_mode:
+            st.write("Displaying plots based on your uploads:")
+        pre(spectra_input, IV_photo_input)
+        preprocess_data()
+        sidebar_controls()
+#         except:
+#             st.error("Check your uploads for errors/formatting issues!")
     
     if (test or st.session_state.load_state):
         if dev_mode:
