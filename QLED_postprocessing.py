@@ -79,9 +79,9 @@ def pre(spectra_input, IV_photo_input):
     
     st.sidebar.header("Adjust Settings")
 
-    D_input = st.sidebar.number_input("Distance between photodetector and LED (mm)", value=20)
-    A_LED_input = st.sidebar.number_input("Active area of LED (mm^2)", value=math.pi*4**2)
-    A_phd_input = st.sidebar.number_input("Active area of photodetector (mm^2)", value=100)
+    D_input = st.sidebar.number_input("Distance between photodetector and LED (mm)", value=20.0, format='%f')
+    A_LED_input = st.sidebar.number_input("Active area of LED (mm^2)", value=15.0, format='%f')
+    A_phd_input = st.sidebar.number_input("Active area of photodetector (mm^2)", value=100.0, format='%f')
     
     ######################################################
 
