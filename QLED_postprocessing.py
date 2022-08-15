@@ -207,7 +207,7 @@ def preprocess_data():
 #     st.write(Omega_phd)
     
     #Selecting max EL spectrum to normalize and continue with calculation
-    Selected_EL_Spectrum = 1
+    Selected_EL_Spectrum = 42
     normalized_EL_Spectrum = Spectra[:,Selected_EL_Spectrum+1]/np.amax(Spectra[:,Selected_EL_Spectrum+1])
     normalized_EL_Spectra=Spectra.copy()
     for i in range(numpoints-1): #This is because the 0V column is entirely zeros
