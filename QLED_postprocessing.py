@@ -47,13 +47,10 @@ def pre(spectra_input, IV_photo_input):
     global phototopic
     global numpoints
 #     global Sample_Name
-    
-#     spectra_input = str(spectra_input, errors='replace')
-    
+        
     Spectra = pd.read_csv(spectra_input, sep='\t',skipfooter=1)
     Spectra = Spectra.to_numpy()
 
-#     IV_photo_input = str(IV_photo_input, errors='replace')
     IV_EL = pd.read_csv(IV_photo_input, sep='\t')
     IV_EL = IV_EL.to_numpy()
     
@@ -579,7 +576,7 @@ def graph22(x_lo, x_hi, y_lo, y_hi):
     
     ##########################################################
     
-def graph26(current, luminance):
+def graph26(current, luminance, x_lo, x_hi, cd_y_lo, cd_y_hi, l_y_lo, l_y_hi):
     if dev_mode:
         st.write("graph26")
     #Now plotting a JVL curve
@@ -595,6 +592,16 @@ def graph26(current, luminance):
     ax1.set_ylabel('Current density (mA$.cm^{-2}$)', labelpad=10)
     ax1.set_title(f'JVL curve \nfor {Sample_Name}', fontsize = 14)
     ax2.set_ylabel('Luminance (cd.$m^{-2}$)')
+    
+    if x_lo < 0.0 or x_hi > 0.0:
+        ax1.set_xlim(x_lo,x_hi)
+    
+    if cd_y_lo < 0.0 or cd_y_hi > 0.0:
+        ax1.set_ylim(cd_y_lo,cd_y_hi)
+        
+    if l_y_lo < 0.0 or l_y_hi > 0.0:
+        ax2.set_ylim(l_y_lo,l_y_hi)
+        
     
     ax1.set_yscale(current)
     ax2.set_yscale(luminance)
@@ -631,10 +638,35 @@ def sidebar_controls():
             current26 = st.select_slider('Current', options=['log','linear'], value='log')
         with col2:
             luminance26 = st.select_slider('Luminance', options=['log','linear'], value='log')
+            
+        # x range
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            x_lo_input = st.number_input("x min", format='%f', key=0)
+        with col2:
+            x_hi_input = st.number_input("x max", format='%f', key=0)
+        
+        # current density
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            cd_y_lo_input = st.number_input("Current density y min", format='%f')
+        with col2:
+            cd_y_hi_input = st.number_input("Current density y max", format='%f')
+            
+        # luminance
+        col1, col2 = st.sidebar.columns(2, gap="small")
+        with col1:
+            l_y_lo_input = st.number_input("Luminance y min", format='%f')
+        with col2:
+            l_y_hi_input = st.number_input("Luminance y max", format='%f')
+        
         
         buf, mid, buf = st.columns([1,4,1])
         with mid:
-            graph26(current=current26, luminance=luminance26)
+            graph26(current26, luminance26, 
+                    x_lo_input, x_hi_input, 
+                    cd_y_lo_input, cd_y_hi_input, 
+                    l_y_lo_input, l_y_hi_input)
     
     
     g12 = st.sidebar.checkbox("EQE% vs. Current Density", value=True)
@@ -659,7 +691,7 @@ def sidebar_controls():
         with mid:
             graph12(EQE12, x_lo_input, x_hi_input, y_lo_input, y_hi_input)
     
-    g17 = st.sidebar.checkbox("Luminous vs Current Density", value=True)
+    g17 = st.sidebar.checkbox("Luminance vs Current Density", value=True)
     if g17:
         buf, mid, buf = st.columns([1,3,1])
         with mid:
