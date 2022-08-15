@@ -48,10 +48,12 @@ def pre(spectra_input, IV_photo_input):
     global numpoints
 #     global Sample_Name
     
+#     spectra_input = str(spectra_input, errors='replace')
     
     Spectra = pd.read_csv(spectra_input, sep='\t',skipfooter=1)
     Spectra = Spectra.to_numpy()
 
+#     IV_photo_input = str(IV_photo_input, errors='replace')
     IV_EL = pd.read_csv(IV_photo_input, sep='\t')
     IV_EL = IV_EL.to_numpy()
     
@@ -205,7 +207,7 @@ def preprocess_data():
 #     st.write(Omega_phd)
     
     #Selecting max EL spectrum to normalize and continue with calculation
-    Selected_EL_Spectrum = 42
+    Selected_EL_Spectrum = 1
     normalized_EL_Spectrum = Spectra[:,Selected_EL_Spectrum+1]/np.amax(Spectra[:,Selected_EL_Spectrum+1])
     normalized_EL_Spectra=Spectra.copy()
     for i in range(numpoints-1): #This is because the 0V column is entirely zeros
