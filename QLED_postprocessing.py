@@ -599,22 +599,47 @@ def graph22(x_lo, x_hi, y_lo, y_hi):
     
     ##########################################################
     
-def graph26(current, luminance, x_lo, x_hi, cd_y_lo, cd_y_hi, l_y_lo, l_y_hi):
+def graph26(current, luminance, start_voltage, x_lo, x_hi, cd_y_lo, cd_y_hi, l_y_lo, l_y_hi):
     if dev_mode:
         st.write("graph26")
     #Now plotting a JVL curve
+    
+    # default graph -------------------------------------------------------------------------------
     fig, ax1 = plt.subplots(figsize=(4, 4))
     ax2 = ax1.twinx()
-
+    
+#     st.write(IV_EL)
     line1, = ax1.plot(IV_EL[:,0],IV_EL[:,6],linewidth=2, color ='green', label = 'Current Density')
     line2, = ax2.plot(IV_EL[:,0],IV_EL[:,8],linewidth=2, label = 'Luminance')
-
+    
+    #----------------------------------------------------------------------------------------------
+    
+    # default x limits
+    left, right = plt.xlim()
+    
+    # find the point to start plotting
+    idx = 0
+    for x in range(0, numpoints):
+        if IV_EL[x,0] >= start_voltage:
+            break
+            
+        idx +=1
+    
+    fig, ax1 = plt.subplots(figsize=(4, 4))
+    ax2 = ax1.twinx()
+    line1, = ax1.plot(IV_EL[idx:,0],IV_EL[idx:,6],linewidth=2, color ='green', label = 'Current Density')
+    line2, = ax2.plot(IV_EL[idx:,0],IV_EL[idx:,8],linewidth=2, label = 'Luminance')
+    
+    
     ax1.legend(handles=[line1, line2], fontsize = 10)
 
     ax1.set_xlabel(r'Voltage (V)', labelpad=10)
     ax1.set_ylabel('Current density (mA$.cm^{-2}$)', labelpad=10)
     ax1.set_title(f'JVL curve \nfor {Sample_Name}', fontsize = 14)
     ax2.set_ylabel('Luminance (cd.$m^{-2}$)')
+    
+    # default x range
+    ax1.set_xlim(left, right)
     
     if x_lo < 0.0 or x_hi > 0.0:
         ax1.set_xlim(x_lo,x_hi)
@@ -648,7 +673,6 @@ def graph30(increment):
     ax.set_xlabel('Wavelength(nm)')
     ax.set_ylabel('Counts')
     ax.set_title(f'Electroluminescence Spectra at Each\n Bias Voltage of {Sample_Name}')
-#     ax.set_xlim(300,800)
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
     st.pyplot(fig)
     #plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
@@ -667,6 +691,8 @@ def sidebar_controls():
             current26 = st.select_slider('Current', options=['log','linear'], value='log')
         with col2:
             luminance26 = st.select_slider('Luminance', options=['log','linear'], value='log')
+            
+        start_volt_input = st.sidebar.number_input("Start graphing at voltage (V)", value=0.0, format='%f', key=0)
             
         # x range
         col1, col2 = st.sidebar.columns(2, gap="small")
@@ -692,7 +718,7 @@ def sidebar_controls():
         
         buf, mid, buf = st.columns([1,4,1])
         with mid:
-            graph26(current26, luminance26, 
+            graph26(current26, luminance26, start_volt_input,
                     x_lo_input, x_hi_input, 
                     cd_y_lo_input, cd_y_hi_input, 
                     l_y_lo_input, l_y_hi_input)
