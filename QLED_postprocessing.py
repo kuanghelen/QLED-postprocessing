@@ -374,9 +374,12 @@ def graph2():
     ax.plot(IV_EL[:,0],IV_EL[:,2],linewidth=2)
 
     ax.set_xlabel('Bias Voltage(V)')
-    ax.set_ylabel('Photourrent(mA)')
+    ax.set_ylabel('Photocurrent(mA)')
     ax.set_title(f'EL Characteristics of\n {Sample_Name}')
     st.pyplot(fig)
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Voltage_v_Photocurrent.png', bbox_inches='tight')
     
     
 def graph3():
@@ -397,7 +400,8 @@ def graph3():
 
     st.pyplot(fig)
 
-#     plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_EL_Spectra_per_Voltage.png', bbox_inches='tight')
     
     ####################################################
     
@@ -415,6 +419,9 @@ def graph4():
     ax.set_title('Responsivity Function of Photodiode E')
     st.pyplot(fig)
     
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Wavelength_v_Responsivity.png', bbox_inches='tight')
+    
     
     ##########################################################
 
@@ -430,6 +437,9 @@ def graph5():
     ax.set_ylabel('EQE(%)')
     ax.set_title('Wavelength dependent EQE of device\n measured by Photodiode E?')
     st.pyplot(fig)
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Wavelength_v_EQE.png', bbox_inches='tight')
     
 #     ##########################################################
 
@@ -448,8 +458,9 @@ def graph7():
     ax.set_title(f'Normalized Electroluminescence Spectra at Each\n Bias Voltage of {Sample_Name}')
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
     st.pyplot(fig)
-
-    #plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Norm_EL_Spectra_per_Voltage.png', bbox_inches='tight')
     
     
     ##########################################################
@@ -468,6 +479,9 @@ def graph9():
     ax.set_title(f'Incident Photon Flux on Photodiode\nfrom {Sample_Name}')
     st.pyplot(fig)
     
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Voltage_v_Photon_Flux.png', bbox_inches='tight')
+    
     
     ##########################################################    
     
@@ -483,6 +497,9 @@ def graph10():
     ax.set_ylabel('Radiance ($W.sr^{-1}.m^{-2}$)')
     ax.set_title(f'LED Radiance vs. Voltage \nfor {Sample_Name}')
     st.pyplot(fig)
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Voltage_v_Radiance.png', bbox_inches='tight')
     
     
     ##########################################################
@@ -514,6 +531,8 @@ def graph12(EQE, x_lo, x_hi, y_lo, y_hi):
     ax.set_xscale('log') #as opposed to 'linear'
     st.pyplot(fig)
     
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Current_v_EQE.png', bbox_inches='tight')
     
     ##########################################################
     
@@ -531,6 +550,8 @@ def graph15():
     ax.set_title('Phototopic response of the human eye to light')
     st.pyplot(fig)
     
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Wavelength_v_Phototopic_factor.png', bbox_inches='tight')
     
     ##########################################################
 
@@ -547,6 +568,9 @@ def graph17():
     ax.set_ylabel('Luminance (cd/$m^{-2}$)')
     ax.set_title(f'Luminance vs. Current Density \nfor {Sample_Name}')
     st.pyplot(fig)
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Current_v_Luminance.png', bbox_inches='tight')
 
     
 def graph22(x_lo, x_hi, y_lo, y_hi):
@@ -566,13 +590,12 @@ def graph22(x_lo, x_hi, y_lo, y_hi):
     
     if y_lo < 0.0 or y_hi > 0.0:
         ax.set_ylim(y_lo,y_hi)
-    
-#     ax.set_xlim(x_lo,x_hi)
-#     ax.set_ylim(y_lo,y_hi)
 
     ax.set_xscale('log') #as opposed to 'linear'
     st.pyplot(fig)
     
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Current_v_Luminous_Efficacy.png', bbox_inches='tight')
     
     ##########################################################
     
@@ -606,6 +629,9 @@ def graph26(current, luminance, x_lo, x_hi, cd_y_lo, cd_y_hi, l_y_lo, l_y_hi):
     ax1.set_yscale(current)
     ax2.set_yscale(luminance)
     st.pyplot(fig)
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_JVL_curve.png', bbox_inches='tight')
 
 
 ######################################
@@ -626,6 +652,9 @@ def graph30(increment):
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, frameon=False, fontsize=10, ncol=3)
     st.pyplot(fig)
     #plt.savefig(f'IV+Spectra/{date_string}{Sample_Name}_Spectra.png')
+    
+    if save_figs:
+        plt.savefig(f'{date_string}{Sample_Name}_Selected_EL_Spectra_per_Voltage.png', bbox_inches='tight')
     
 
 def sidebar_controls():
@@ -777,7 +806,8 @@ if __name__ == '__main__':
     
     with st.expander('Uploads', expanded=True):
         Sample_Name = st.text_input('Sample name', 'CommercialWhite1')
-        
+        save_figs = st.checkbox("Save selected graphs")
+
         f1, f2 = st.columns(2)
         with f1:
             spectra_input = st.file_uploader("Upload a spectra CSV")
@@ -800,6 +830,7 @@ if __name__ == '__main__':
         pre(spectra_input, IV_photo_input)
         preprocess_data()
         sidebar_controls()
+        
 #         except:
 #             st.error("Check your uploads for errors/formatting issues!")
     
